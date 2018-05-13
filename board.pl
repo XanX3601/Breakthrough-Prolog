@@ -79,3 +79,69 @@ board_new(Width, Height) :-
  * @param Board the board
  */
 :- dynamic board/1.
+
+/**
+ * board_cell_coord(?Cell: term, ?X: int, ?Y: int)
+ *
+ * Convert between a cell and its coordinate (X;Y)
+ *
+ * @param Cell a cell
+ * @param X index of the column
+ * @param Y index of the row
+ */
+:- dynamic board_cell_coord/3
+
+/**
+ * board_get_cell_value(+X: int, +Y: int, -Value: term)
+ *
+ * Get the value of the cell (X; Y)
+ *
+ * @param X index of the column
+ * @param Y index of the row
+ * @param Value value of the cell
+ */
+board_get_cell_value(X, Y, Value) :-
+    board(Board),
+    nth0(Y, Board, Row),
+    nth0(X, Row, Value).
+
+/**
+ * board_get_cell_value(+Cell: term, -Value: term)
+ *
+ * Get the value of a cell
+ *
+ * @param Cell a cell
+ * @param Value the value of the cell
+ */
+board_get_cell_value(Cell, Value) :-
+    board_cell_coord(Cell, X, Y),
+    board_get_cell_value(X, Y, Value).
+
+/**
+ * board_set_cell_value(+X: int, +Y: int, +NewValue: term)
+ *
+ * Replace the value of the cell (X; Y) by NewValue
+ *
+ * @param X index of the column
+ * @param Y index of the row
+ * @param NewValue the new value of the cell (X; Y)
+ */
+board_set_cell_value(X, Y, NewValue) :-
+    board(Board),
+    nth0(Y, Board, Row)
+    replace(X, Row, NewValue, NewRow),
+    replace(Y, Board, NewRow, NewBoard),
+    retract(board(Board)),
+    asserta(board(NewBoard)).
+
+/**
+ * board_set_cell_value(+Cell: term, +NewValue: term)
+ *
+ * Replace the value of a cell by NewValue
+ *
+ * @param Cell a cell
+ * @param NewValue the new value of the cell
+ */
+board_set_cell_value(Cell, NewValue) :-
+    board_cell_coord(Cell, X, Y),
+    board_set_cell_value(X, Y, NewValue).

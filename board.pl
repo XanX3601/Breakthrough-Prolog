@@ -11,7 +11,8 @@ This module provides predicate to manipulate a 2D game board
                     board_height/1,
                     board_cell_coord/3,
                     board_get_cell_value/2,
-                    board_set_cell_value/2]).
+                    board_set_cell_value/2,
+                    board_set_cells_value/2]).
 
 :- use_module(tools).
 
@@ -43,13 +44,10 @@ board_new(Width, Height) :-
     Width < 27,
     Height > 0,
 
-    board_width(PreWidth),
-    board_height(PreHeight),
-    retract(board_width(PreWidth)),
-    retract(board_height(PreHeight)),
+    retractall(board_width(PreWidth)),
+    retractall(board_height(PreHeight)),
 
-    board(PreBoard),
-    retract(board(PreBoard)),
+    retractall(board(PreBoard)),
 
     retractall(board_cell_coord(Cell, X, Y)),
 
@@ -167,8 +165,8 @@ board_get_cell_value(Cell, Value) :-
 board_set_cell_value(X, Y, NewValue) :-
     board(Board),
     nth0(Y, Board, Row),
-    replace(X, Row, NewValue, NewRow),
-    replace(Y, Board, NewRow, NewBoard),
+    replace(Row, X, NewValue, NewRow),
+    replace(Board, Y, NewRow, NewBoard),
     retract(board(Board)),
     asserta(board(NewBoard)).
 
@@ -183,3 +181,16 @@ board_set_cell_value(X, Y, NewValue) :-
 board_set_cell_value(Cell, NewValue) :-
     board_cell_coord(Cell, X, Y),
     board_set_cell_value(X, Y, NewValue).
+
+/**
+ * board_set_cells_value(+Cells: list, +NewValue: term)
+ *
+ * Replace the value of the given cells by NewValue
+ *
+ * @param Cells a list of cell
+ * @param NewValue the new vvalue of the cells
+ */
+board_set_cells_value([], NewValue).
+board_set_cells_value([Cell|Cells], NewValue) :-
+    board_set_cell_value(Cell, NewValue),
+    board_set_cells_value(Cells, NewValue).

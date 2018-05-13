@@ -8,7 +8,10 @@ This module provides predicate to manipulate a 2D game board
 :- module(board, [board_new/2,
                     board/1,
                     board_width/1,
-                    board_height/1]).
+                    board_height/1,
+                    board_cell_coord/3,
+                    board_get_cell_value/2,
+                    board_set_cell_value/2]).
 
 :- use_module(tools).
 
@@ -31,7 +34,9 @@ board_new(Width, Height) :-
 
     list_build(empty, Width, Row),
     list_build(Row, Height, Board),
-    asserta(board(Board)).
+    asserta(board(Board)),
+
+    board_assert_cell_coord(0, 0).
 
 board_new(Width, Height) :-
     Width > 0,
@@ -46,12 +51,16 @@ board_new(Width, Height) :-
     board(PreBoard),
     retract(board(PreBoard)),
 
+    retractall(board_cell_coord(Cell, X, Y)),
+
     asserta(board_width(Width)),
     asserta(board_height(Height)),
 
     list_build(empty, Width, Row),
     list_build(Row, Height, Board),
-    asserta(board(Board)).
+    asserta(board(Board)),
+
+    board_assert_cell_coord(0, 0).
 
 /**
  * board_width(-Width: int)
@@ -89,7 +98,36 @@ board_new(Width, Height) :-
  * @param X index of the column
  * @param Y index of the row
  */
-:- dynamic board_cell_coord/3
+:- dynamic board_cell_coord/3.
+
+/**
+ * board_assert_cell_coord(+FileCode: int, +Rank: int)
+ *
+ * assert all the valid board_cell_coord predicate
+ *
+ * @param FileCode the ascii code of the first file, should be 97
+ * @param Rank the rank of the first row, should be 8
+ */
+board_assert_cell_coord(X, Y) :-
+    board_width(Width),
+    board_height(Height),
+    X is Width,
+    Y < Height,
+    YPlusOne is Y + 1,
+    board_assert_cell_coord(0, YPlusOne).
+
+board_assert_cell_coord(X, Y) :-
+    board_width(Width),
+    board_height(Height),
+    X < Width,
+    Y < Height,
+    XPlusOne is X + 1,
+    FileCode is X + 97,
+    Rank is Y * -1 + Height,
+    char_code(File, FileCode),
+    atom_concat(File, Rank, Cell),
+    asserta(board_cell_coord(Cell, X, Y)),
+    board_assert_cell_coord(XPlusOne, Y).
 
 /**
  * board_get_cell_value(+X: int, +Y: int, -Value: term)
@@ -128,7 +166,7 @@ board_get_cell_value(Cell, Value) :-
  */
 board_set_cell_value(X, Y, NewValue) :-
     board(Board),
-    nth0(Y, Board, Row)
+    nth0(Y, Board, Row),
     replace(X, Row, NewValue, NewRow),
     replace(Y, Board, NewRow, NewBoard),
     retract(board(Board)),

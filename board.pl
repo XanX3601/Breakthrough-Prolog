@@ -16,6 +16,7 @@ This module provides predicate to manipulate a 2D game board
                     board_set_cells_value/2]).
 
 :- use_module(tools).
+:- use_module(library(lists)).
 
 /**
  * board_new(+Width: int, +Height: int)

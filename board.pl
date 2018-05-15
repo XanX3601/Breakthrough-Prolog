@@ -11,7 +11,9 @@ This module provides predicate to manipulate a 2D game board
                     board_height/1,
                     board_cell_coord/3,
                     board_get_cell_value/2,
-                    board_set_cell_value/2]).
+                    board_get_cells_value/2,
+                    board_set_cell_value/2,
+                    board_set_cells_value/2]).
 
 :- use_module(tools).
 
@@ -24,32 +26,14 @@ This module provides predicate to manipulate a 2D game board
  * @param Height the height of the board, superior or equal to 1
  */
 board_new(Width, Height) :-
-    not(board_width(X)),
     Width > 0,
     Width < 27,
     Height > 0,
 
-    asserta(board_width(Width)),
-    asserta(board_height(Height)),
+    retractall(board_width(PreWidth)),
+    retractall(board_height(PreHeight)),
 
-    list_build(empty, Width, Row),
-    list_build(Row, Height, Board),
-    asserta(board(Board)),
-
-    board_assert_cell_coord(0, 0).
-
-board_new(Width, Height) :-
-    Width > 0,
-    Width < 27,
-    Height > 0,
-
-    board_width(PreWidth),
-    board_height(PreHeight),
-    retract(board_width(PreWidth)),
-    retract(board_height(PreHeight)),
-
-    board(PreBoard),
-    retract(board(PreBoard)),
+    retractall(board(PreBoard)),
 
     retractall(board_cell_coord(Cell, X, Y)),
 
@@ -60,7 +44,7 @@ board_new(Width, Height) :-
     list_build(Row, Height, Board),
     asserta(board(Board)),
 
-    board_assert_cell_coord(0, 0).
+    not(board_assert_cell_coord(0, 0)).
 
 /**
  * board_width(-Width: int)
@@ -156,6 +140,19 @@ board_get_cell_value(Cell, Value) :-
     board_get_cell_value(X, Y, Value).
 
 /**
+ * board_get_cells_value(+Cells: list, -CellsValue: list)
+ *
+ * Get the value of given cells
+ *
+ * @param Cells a list of cell
+ * @param CellsValue the value of every cell in Cells in same order
+ */
+board_get_cells_value([], []).
+board_get_cells_value([Cell|Cells], [CellValue|CellsValue]) :-
+    board_get_cell_value(Cell, CellValue),
+    board_get_cells_value(Cells, CellsValue).
+
+/**
  * board_set_cell_value(+X: int, +Y: int, +NewValue: term)
  *
  * Replace the value of the cell (X; Y) by NewValue
@@ -167,8 +164,8 @@ board_get_cell_value(Cell, Value) :-
 board_set_cell_value(X, Y, NewValue) :-
     board(Board),
     nth0(Y, Board, Row),
-    replace(X, Row, NewValue, NewRow),
-    replace(Y, Board, NewRow, NewBoard),
+    replace(Row, X, NewValue, NewRow),
+    replace(Board, Y, NewRow, NewBoard),
     retract(board(Board)),
     asserta(board(NewBoard)).
 
@@ -183,3 +180,16 @@ board_set_cell_value(X, Y, NewValue) :-
 board_set_cell_value(Cell, NewValue) :-
     board_cell_coord(Cell, X, Y),
     board_set_cell_value(X, Y, NewValue).
+
+/**
+ * board_set_cells_value(+Cells: list, +NewValue: term)
+ *
+ * Replace the value of the given cells by NewValue
+ *
+ * @param Cells a list of cell
+ * @param NewValue the new vvalue of the cells
+ */
+board_set_cells_value([], NewValue).
+board_set_cells_value([Cell|Cells], NewValue) :-
+    board_set_cell_value(Cell, NewValue),
+    board_set_cells_value(Cells, NewValue).

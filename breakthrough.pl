@@ -7,7 +7,9 @@ Module providing everything needed to play breakthrough
 */
 :- module(breakthrough, [init_normal_game/0,
                             win/1,
-                            turn/1]).
+                            turn/1,
+                            do/2,
+                            legal/2]).
 
 :- use_module(board).
 :- use_module(library(lists)).

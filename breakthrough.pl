@@ -10,6 +10,7 @@ Module providing everything needed to play breakthrough
                             turn/1]).
 
 :- use_module(board).
+:- use_module(library(lists)).
 
 /**
  * init_normal_game()
@@ -17,12 +18,12 @@ Module providing everything needed to play breakthrough
  * Inititialize a normal breakthrough game
  */
 init_normal_game :-
-    not(board_new(8, 8)),
+    board_new(8, 8),
     board_set_cells_value([a8, b8, c8, d8, e8, f8, g8, h8, a7, b7, c7, d7, e7, f7, g7, h7], black),
     board_set_cells_value([a1, b1, c1, d1, e1, f1, g1, h1, a2, b2, c2, d2, e2, f2, g2, h2], white),
     retractall(win(Player)),
     retractall(turn(Player2)),
-    asserta(turn(white)).
+    asserta(turn(white)), !.
 
 /**
  * win(-Player: term)
@@ -101,25 +102,44 @@ do(white, move(Pawn, Goal)) :-
     board_set_cell_value(Pawn, empty),
     board_set_cell_value(Goal, white),
     retract(turn(white)),
-    asserta(turn(black)).
+    asserta(turn(black)),
+    check_win.
 
 do(white, capture(Pawn, Goal)) :-
     legal(white, capture(Pawn, Goal)),
     board_set_cell_value(Pawn, empty),
     board_set_cell_value(Goal, white),
     retract(turn(white)),
-    asserta(turn(black)).
+    asserta(turn(black)),
+    check_win.
 
 do(black, move(Pawn, Goal)) :-
     legal(black, move(Pawn, Goal)),
     board_set_cell_value(Pawn, empty),
     board_set_cell_value(Goal, black),
     retract(turn(black)),
-    asserta(turn(white)).
+    asserta(turn(white)),
+    check_win.
 
 do(black, capture(Pawn, Goal)) :-
     legal(black, capture(Pawn, Goal)),
     board_set_cell_value(Pawn, empty),
     board_set_cell_value(Goal, black),
     retract(turn(black)),
-    asserta(turn(white)).
+    asserta(turn(white)),
+    check_win.
+
+/**
+ * check_win()
+ *
+ * Check and assert if a player has won
+ */
+check_win :-
+    board_get_cells_value([a8, b8, c8, d8, e8, f8, g8, h8], BlackHomeRow),
+    member(white, BlackHomeRow),
+    asserta(win(white)).
+
+check_win :-
+    board_get_cells_value([a1, b1, c1, d1, e1, f1, g1, h1], WhiteHomeRow),
+    member(black, WhiteHomeRow),
+    asserta(win(black)).

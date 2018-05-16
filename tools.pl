@@ -25,7 +25,6 @@ list_build(Element, Length, List) :-
  * replace(+List: list, +Index: int, +NewElement: term, -NewList: list)
  *
  * Replace the element at the given Index in List by NewElement
- * The index start at 0
  *
  * @param List the list to modify
  * @param Index the index of the element to replace

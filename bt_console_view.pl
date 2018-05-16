@@ -16,11 +16,16 @@ Console view of a breakthrough game
 :- use_module(breakthrough).
 :- use_module(board).
 
+/**
+ * instructions
+ *
+ * SHow the instructions to use the program
+ */
 instructions :-
     write('Hello !\n   start_a_game -> start a new game\n   board -> display the board\n   turn -> display the current player\n   legal -> display the moves legal for the current player\n   move(Pawn, Goal) -> move a pawn to the given goal\n   capture(Pawn, Goal) -> the given pawn capture an enemy pawn on goal\n').
 
 /**
- * start_a_game()
+ * start_a_game
  *
  * Start a game
  */
@@ -28,7 +33,7 @@ start_a_game :-
     init_normal_game.
 
 /**
- * board()
+ * board
  *
  * Display the board
  */
@@ -56,7 +61,7 @@ board :-
     writef(Output, ValuesStr).
 
 /**
- * turn()
+ * turn
  *
  * Display the name of the current player
  */
@@ -65,7 +70,7 @@ turn :-
     write(Player), nl.
 
 /**
- * legal()
+ * legal
  *
  * Display legal moves for current player
  */

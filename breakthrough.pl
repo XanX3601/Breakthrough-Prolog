@@ -15,7 +15,7 @@ Module providing everything needed to play breakthrough
 :- use_module(library(lists)).
 
 /**
- * init_normal_game()
+ * init_normal_game
  *
  * Inititialize a normal breakthrough game
  */
